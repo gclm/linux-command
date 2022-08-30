@@ -1,4 +1,4 @@
-name: CI
+name: CI Test
 on:
   workflow_dispatch:
   push:
@@ -13,12 +13,6 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: 16
-
-    - name: Generate Contributors Images
-      uses: jaywcjlove/github-action-contributors@main
-      with:
-        filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
-        avatarSize: 42
 
     - run: npm install
     - run: npm run build
