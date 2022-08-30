@@ -1,6 +1,5 @@
 name: CI
 on:
-  workflow_dispatch:
   push:
     branches:
       - master
@@ -20,17 +19,11 @@ jobs:
         filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
         avatarSize: 42
 
-    - run: npm install
-    - run: npm run build
-    - run: node build/dash.js
-
-    - name: Compress linux-command.docset.
-      run: zip -r -y linux-command.docset.zip . -x "node_modules/*"
-      working-directory: .deploy/linux-command.docset
-    - run: cp -rp .deploy/linux-command.docset/linux-command.docset.zip ./
-
-    - run: rm -rf .deploy/linux-command.docset
-    - run: cp CONTRIBUTORS.svg .deploy
+    - name: Build
+      run: |        
+        npm install
+        npm run dash
+        cp CONTRIBUTORS.svg .deploy
 
     - name: Create Tag
       id: create_tag
@@ -38,9 +31,14 @@ jobs:
       with:
         package-path: ./package.json
 
-    - name: get tag version
+    - name: Get Tag Version
       id: tag_version
       uses: jaywcjlove/changelog-generator@v1.5.3
+
+    - name: Update Dash Feed
+      run: |
+        rm -rf .deploy/linux-command.docset
+        echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://jaywcjlove.github.io/linux-command/linux-command.docset.tgz</url></entry>" > .deploy/linux-command-docset.xml
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
@@ -62,7 +60,7 @@ jobs:
       uses: ncipollo/release-action@v1
       if: steps.create_tag.outputs.successful
       with:
-        artifacts: 'linux-command.docset.zip'
+        artifacts: 'linux-command.docset.tgz'
         token: ${{ secrets.GITHUB_TOKEN }}
         name: ${{ steps.create_tag.outputs.version }}
         tag: ${{ steps.create_tag.outputs.version }}
@@ -104,31 +102,19 @@ jobs:
           http://localhost:9665/
           ```
 
-
-    - run: npm install @jsdevtools/npm-publish -g
-    - run: npm-publish --token="${{ secrets.NPM_TOKEN }}" ./package.json
-    - run: rm -rf .deploy/linux-command.docset.zip
-
-    # 更新dash feed
-    - name: Update Dash Feed
-      run: |
-        pwd && ls
-        echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://github.com/jaywcjlove/linux-command/releases/download/${{ steps.changelog.outputs.tag }}/linux-command.docset.zip</url></entry>" > linux-command-docset.xml
-        git add linux-command-docset.xml
-        git commit -m "更新Dash Feed"
-
-    #推送更新至github
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
+    - name: Push Npm
+      run: | 
+         npm install @jsdevtools/npm-publish -g
+         npm-publish --token="${{ secrets.NPM_TOKEN }}" ./package.json
 
       # Create Docker Image
     - name: Docker login
       run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
     
     - name: Build linux-command image
-      run: docker image build -t linux-command .
+      run: |
+        rm -rf .deploy/linux-command.docset.tgz
+        docker image build -t linux-command .
 
     - name: Tags & Push image(latest)
       run: |
