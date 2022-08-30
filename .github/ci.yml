@@ -19,11 +19,12 @@ jobs:
         filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
         avatarSize: 42
 
-    - name: Build
+    - name: Build Linux Command
       run: |        
         npm install
         npm run dash
         cp CONTRIBUTORS.svg .deploy
+        rm -rf .deploy/linux-command.docset
 
     - name: Create Tag
       id: create_tag
@@ -37,7 +38,6 @@ jobs:
 
     - name: Update Dash Feed
       run: |
-        rm -rf .deploy/linux-command.docset
         echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://jaywcjlove.github.io/linux-command/linux-command.docset.tgz</url></entry>" > .deploy/linux-command-docset.xml
 
     - name: Deploy
