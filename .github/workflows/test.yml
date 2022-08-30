@@ -20,15 +20,16 @@ jobs:
       with:
         package-path: ./package.json
 
-      # 更新dash feed
     - name: Update Dash Feed
       run: |
-        echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://jaywcjlove.github.io/linux-command/linux-command.docset.zip</url></entry>" > linux-command-docset.xml
-        git config --global user.email "gclmit@163.com"
-        git config --global user.name "gclm"
-        git add linux-command-docset.xml
-        git commit -m "更新Dash Feed"
+        echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://jaywcjlove.github.io/linux-command/linux-command.docset.zip</url></entry>" > .deploy/linux-command-docset.xml
 
-      #推送更新至github
-    - name: Push Dash Feed
-      uses: ad-m/github-push-action@master
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        commit_message: '[${{steps.tag_version.outputs.tag}}] ${{ github.event.head_commit.message }}'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./.deploy
+        user_name: github-actions[bot]
+        user_email: github-actions[bot]@users.noreply.github.com
+
