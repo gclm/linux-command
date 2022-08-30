@@ -14,17 +14,6 @@ jobs:
       with:
         node-version: 16
 
-    - run: npm install
-    - run: npm run build
-    - run: node build/dash.js
-
-    - name: Compress linux-command.docset.
-      run: zip -r -y linux-command.docset.zip . -x "node_modules/*"
-      working-directory: .deploy/linux-command.docset
-    - run: cp -rp .deploy/linux-command.docset/linux-command.docset.zip ./
-
-    - run: rm -rf .deploy/linux-command.docset
-
     - name: Create Tag
       id: create_tag
       uses: jaywcjlove/create-tag-action@v1.3.6
@@ -36,6 +25,8 @@ jobs:
       run: |
         pwd && ls
         echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://github.com/jaywcjlove/linux-command/releases/download/${{ steps.changelog.outputs.tag }}/linux-command.docset.zip</url></entry>" > linux-command-docset.xml
+        git config --global user.email "gclmit@163.com"
+        git config --global user.name "gclm"
         git add linux-command-docset.xml
         git commit -m "更新Dash Feed"
 
