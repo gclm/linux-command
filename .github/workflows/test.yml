@@ -23,10 +23,7 @@ jobs:
       # 更新dash feed
     - name: Update Dash Feed
       run: |
-        echo ${{steps.create_tag.outputs.versionNumber}}
-        echo ${{steps.create_tag.outputs.version}}
-        pwd && ls
-        echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://github.com/jaywcjlove/linux-command/releases/download/${{ steps.changelog.outputs.tag }}/linux-command.docset.zip</url></entry>" > linux-command-docset.xml
+        echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://github.com/jaywcjlove/linux-command/releases/download/${{steps.create_tag.outputs.version}}/linux-command.docset.zip</url></entry>" > linux-command-docset.xml
         git config --global user.email "gclmit@163.com"
         git config --global user.name "gclm"
         git add linux-command-docset.xml
