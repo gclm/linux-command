@@ -22,7 +22,6 @@ jobs:
 
       # 更新dash feed
     - name: Update Dash Feed
-      if: steps.create_tag.outputs.successful
       run: |
         echo ${{steps.create_tag.outputs.versionNumber}}
         echo ${{steps.create_tag.outputs.version}}
