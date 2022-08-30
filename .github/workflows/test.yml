@@ -24,7 +24,6 @@ jobs:
     - run: cp -rp .deploy/linux-command.docset/linux-command.docset.zip ./
 
     - run: rm -rf .deploy/linux-command.docset
-    - run: cp CONTRIBUTORS.svg .deploy
 
     - name: Create Tag
       id: create_tag
