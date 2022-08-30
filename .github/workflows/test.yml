@@ -31,7 +31,5 @@ jobs:
         git commit -m "更新Dash Feed"
 
       #推送更新至github
-    - name: Push changes
+    - name: Push Dash Feed
       uses: ad-m/github-push-action@master
-      with:
-        GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
