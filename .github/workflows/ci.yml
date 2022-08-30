@@ -106,10 +106,23 @@ jobs:
 
     - run: npm install @jsdevtools/npm-publish -g
     - run: npm-publish --token="${{ secrets.NPM_TOKEN }}" ./package.json
-
     - run: rm -rf .deploy/linux-command.docset.zip
 
-    # Create Docker Image
+    # 更新dash feed
+    - name: Update Dash Feed
+      run: |
+        pwd && ls
+        echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://github.com/jaywcjlove/linux-command/releases/download/${{ steps.changelog.outputs.tag }}/linux-command.docset.zip</url></entry>" > linux-command-docset.xml
+        git add linux-command-docset.xml
+        git commit -m "更新Dash Feed"
+
+    #推送更新至github
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
+
+      # Create Docker Image
     - name: Docker login
       run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
     
